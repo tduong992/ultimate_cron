@@ -133,6 +133,7 @@ class CronJobFormTest extends WebTestBase {
     $this->drupalGet('admin/config/system/cron/jobs');
     $this->assertFieldByXPath('//table/tbody/tr[2]/td[6]', 'Disabled');
     $this->assertFieldByXPath('//table/tbody/tr[2]/td[7]/div/div/ul/li[1]/a', 'Enable');
+    $this->assertNoFieldByXPath('//table/tbody/tr[2]/td[7]/div/div/ul/li[1]/a', 'Run');
 
     // Test enabling a job.
     $this->clickLink(t('Enable'), 0);
@@ -175,19 +176,22 @@ class CronJobFormTest extends WebTestBase {
     $this->drupalPostForm('admin/config/system/cron/jobs/manage/' . $job_configuration['id'], ['scheduler[configuration][rules][0]' => '0+@ * * * *'], t('Save'));
     $this->assertText('Rule: 0+@ * * * *');
 
+    // Save an invalid cron job.
     $this->clickLink(t('Edit'), 1);
-
     $job = CronJob::load('system_cron');
-    $job->setCallback('dumb')->save();
+    $job->setCallback('dumb_job')->save();
     $this->drupalGet('admin/config/system/cron/jobs');
 
-    // Test deleting a job.
-    $this->clickLink(t('Delete'));
+    // Assert that the invalid cron job is displayed properly.
+    $this->assertFieldByXPath('//table/tbody/tr[1]/td[6]', 'Missing');
+    $this->assertFieldByXPath('//table/tbody/tr[1]/td[7]/div/div/ul/li/a', 'Delete');
+
+    // Test deleting a job (only possible if invalid cron job).
+    $this->clickLink(t('Delete'), 0);
     $this->drupalPostForm(NULL, NULL, t('Delete'));
-    $this->assertText('The cron job edited job name has been deleted.');
+    $this->assertText(t('The cron job @name has been deleted.', array('@name' => $job->label())));
     $this->drupalGet('admin/config/system/cron/jobs');
-    $this->assertNoText($this->job_name);
-
+    $this->assertNoText($job->label());
 
   }
 
