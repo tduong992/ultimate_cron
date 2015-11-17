@@ -8,6 +8,7 @@ namespace Drupal\ultimate_cron\Tests;
 
 use Drupal\simpletest\WebTestBase;
 use Drupal\Component\Utility\SafeMarkup;
+use Drupal\ultimate_cron\Entity\CronJob;
 
 /**
  * Cron Job Form Testing
@@ -163,24 +164,31 @@ class CronJobFormTest extends WebTestBase {
 
     $this->drupalGet('admin/config/system/cron/jobs');
 
-    // Test deleting a job.
-    $this->clickLink(t('Delete'), 1);
-    $this->drupalPostForm(NULL, NULL, t('Delete'));
-    $this->assertText('The cron job edited job name has been deleted.');
-    $this->drupalGet('admin/config/system/cron/jobs');
-    $this->assertNoText($this->job_name);
+    // Save new job.
     $this->clickLink(t('Add job'));
     $job_configuration = array(
       'title' => 'Test Job',
       'id' => strtolower($this->randomMachineName()),
       'scheduler[id]' => 'crontab',
     );
-
-    // Save new job.
     $this->drupalPostForm(NULL, $job_configuration, t('Save'));
-    $this->clickLink(t('Edit'), 1);
-    $this->drupalPostForm(NULL, ['scheduler[configuration][rules][0]' => '0+@ * * * *'], t('Save'));
+    $this->drupalPostForm('admin/config/system/cron/jobs/manage/' . $job_configuration['id'], ['scheduler[configuration][rules][0]' => '0+@ * * * *'], t('Save'));
     $this->assertText('Rule: 0+@ * * * *');
+
+    $this->clickLink(t('Edit'), 1);
+
+    $job = CronJob::load('system_cron');
+    $job->setCallback('dumb')->save();
+    $this->drupalGet('admin/config/system/cron/jobs');
+
+    // Test deleting a job.
+    $this->clickLink(t('Delete'));
+    $this->drupalPostForm(NULL, NULL, t('Delete'));
+    $this->assertText('The cron job edited job name has been deleted.');
+    $this->drupalGet('admin/config/system/cron/jobs');
+    $this->assertNoText($this->job_name);
+
+
   }
 
 }
