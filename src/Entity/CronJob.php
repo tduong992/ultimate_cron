@@ -163,7 +163,7 @@ class CronJob extends ConfigEntityBase implements CronJobInterface {
   }
 
   /**
-   * Check if the cron job is callable.
+   * {@inheritdoc}
    */
   public function isValid() {
     return is_callable($this->getCallback());

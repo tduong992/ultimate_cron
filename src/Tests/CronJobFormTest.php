@@ -176,10 +176,13 @@ class CronJobFormTest extends WebTestBase {
     $this->drupalPostForm('admin/config/system/cron/jobs/manage/' . $job_configuration['id'], ['scheduler[configuration][rules][0]' => '0+@ * * * *'], t('Save'));
     $this->assertText('Rule: 0+@ * * * *');
 
-    // Save an invalid cron job.
+    // Assert that there is no Delete link on the details page.
+    $this->assertNoLink('Delete');
+
+    // Force a job to be invalid by changing the callback.
     $this->clickLink(t('Edit'), 1);
     $job = CronJob::load('system_cron');
-    $job->setCallback('dumb_job')->save();
+    $job->setCallback('non_existing_function')->save();
     $this->drupalGet('admin/config/system/cron/jobs');
 
     // Assert that the invalid cron job is displayed properly.

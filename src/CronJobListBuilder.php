@@ -57,11 +57,11 @@ class CronJobListBuilder extends ConfigEntityListBuilder {
     $row['started'] = $entry->start_time ? \Drupal::service('date.formatter')->format($entry->start_time, "short") : $this->t('Never');
     // In milliseconds.
     $row['duration'] = round(($entry->end_time - $entry->start_time) * 1000, 0);
-    if ($entity->isValid() && !$entity->status()) {
-      $row['status'] = $this->t('Disabled');
-    }
-    elseif (!$entity->isValid()) {
+    if (!$entity->isValid()) {
       $row['status'] = $this->t('Missing');
+    }
+    elseif ($entity->isValid() && !$entity->status()) {
+      $row['status'] = $this->t('Disabled');
     }
     else {
       $row['status'] = $this->t('Enabled');
@@ -89,6 +89,8 @@ class CronJobListBuilder extends ConfigEntityListBuilder {
         'url' => $entity->urlInfo('run'),
       ]];
     }
+
+    // Invalid jobs can not be enabled nor disabled.
     if (!$entity->isValid()) {
       unset($operations['disable']);
       unset($operations['enable']);
