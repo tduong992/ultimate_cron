@@ -12,6 +12,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\ultimate_cron\CronJobInterface;
 use Drupal\ultimate_cron\Logger\DatabaseLogEntry;
 use Drupal\ultimate_cron\Logger\LoggerBase;
+use Drupal\ultimate_cron\PluginCleanupInterface;
 use PDO;
 
 /**
@@ -24,7 +25,7 @@ use PDO;
  *   default = TRUE,
  * )
  */
-class DatabaseLogger extends LoggerBase {
+class DatabaseLogger extends LoggerBase implements PluginCleanupInterface {
   public $options = array();
   public $logEntryClass = '\Drupal\ultimate_cron\Logger\DatabaseLogEntry';
 
