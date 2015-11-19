@@ -5,6 +5,7 @@
  */
 
 use Drupal\Core\Database\Database;
+use Drupal\ultimate_cron\CronPlugin;
 use Drupal\ultimate_cron\CronRule;
 use Drupal\ultimate_cron\Logger\LoggerBase;
 
@@ -194,21 +195,11 @@ function ultimate_cron_help($route_name, \Drupal\Core\Routing\RouteMatchInterfac
 function ultimate_cron_cron() {
   $items = array();
 
-  $plugin_types = ctools_plugin_get_plugin_type_info();
-  foreach ($plugin_types['ultimate_cron'] as $plugin_type => $info) {
+  $plugin_types = CronPlugin::getPluginTypes();
+  foreach ($plugin_types as $plugin_type => $info) {
     foreach (ultimate_cron_plugin_load_all($plugin_type) as $name => $plugin) {
       if ($plugin->isValid() && ($plugin instanceof \Drupal\ultimate_cron\PluginCleanupInterface)) {
-        $items["ultimate_cron_plugin_{$plugin_type}_{$name}_cleanup"] = array(
-          'title' => t('Ultimate Cron @type @title cleanup', array(
-            '@type' => $info['defaults']['static']['title singular proper'],
-            '@title' => $plugin->title,
-          )),
-          'callback' => 'ultimate_cron_plugin_cleanup',
-          'callback arguments' => array(
-            'type' => $plugin_type,
-            'name' => $name,
-          ),
-        );
+        $plugin->cleanup();
       }
     }
   }
