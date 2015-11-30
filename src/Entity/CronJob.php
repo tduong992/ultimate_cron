@@ -55,6 +55,7 @@ use Exception;
  *     "delete-form" = "/admin/config/system/cron/jobs/manage/{ultimate_cron_job}/delete",
  *     "collection" = "/admin/config/system/cron/jobs",
  *     "run" = "/admin/config/system/cron/jobs/{ultimate_cron_job}/run",
+ *     "logs" = "/admin/config/system/cron/jobs/logs/{ultimate_cron_job}",
  *     "disable" = "/admin/config/system/cron/jobs/manage/{ultimate_cron_job}/disable",
  *     "enable" = "/admin/config/system/cron/jobs/manage/{ultimate_cron_job}/enable",
  *   }
